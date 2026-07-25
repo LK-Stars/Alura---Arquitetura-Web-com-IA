@@ -1,13 +1,26 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
-from fastapi.middleware.cors import CORSMiddleware
-import os
 import glob
+import os
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 PASTA_BASE = os.path.dirname(os.path.abspath(__file__))
 PASTA_IMAGENS = os.path.join(PASTA_BASE, "figurinhas")
 
+# Garante que a pasta exista para não quebrar a busca
+if not os.path.exists(PASTA_IMAGENS):
+    os.makedirs(PASTA_IMAGENS)
+
 app = FastAPI()
+
+# CORS adicionado logo após inicializar a app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def pagina_inicial():
@@ -16,14 +29,6 @@ def pagina_inicial():
         "mensagem": "Olá, mundo! 🌍",
         "dica": "Acesse /figurinhas para ver a lista ou /docs para testar os recursos."
     }
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 figurinhas = [
     {"id": 1, "nome": "Alan Turing", "categoria": "IA", "imagem_url": "/figurinhas/1/imagem"},
@@ -78,4 +83,5 @@ def imagem_figurinha(id: int):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=9001)
+port = int(os.environ.get("PORT", 9001))
+uvicorn.run("main2:app", host="0.0.0.0", port=port, reload=True)
