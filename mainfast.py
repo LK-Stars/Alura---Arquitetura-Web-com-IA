@@ -1,10 +1,20 @@
+import os
 from typing import Dict
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI(title="API de álbum de figurinhas", version="0.1.0")
 
+# Libera o CORS para o frontend conseguir acessar a API sem bloqueio
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Figurinha(BaseModel):
     id: int
@@ -64,4 +74,5 @@ def criar_figurinha(figurinha: FigurinhaCreate) -> Figurinha:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("mainfast:app", host="0.0.0.0", port=8000, reload=True)
+port = int(os.environ.get("PORT", 8000))
+uvicorn.run("mainfast:app", host="0.0.0.0", port=port, reload=True)
