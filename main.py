@@ -1,13 +1,28 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+
 
 # Define o caminho absoluto da pasta base do projeto
 PASTA_BASE = os.path.dirname(os.path.abspath(__file__))
 # Define a pasta onde as imagens das figurinhas serão armazenadas
 PASTA_IMAGENS = os.path.join(PASTA_BASE, "figurinhas")
 
+# Garante que a pasta de figurinhas exista para o servidor não quebrar
+if not os.path.exists(PASTA_IMAGENS):
+    os.makedirs(PASTA_IMAGENS)
+
 app = FastAPI()
+
+# Configuração de CORS para permitir que o Frontend acesse a API de qualquer lugar
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Em produção, você pode limitar para a URL exata do seu frontend
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite GET, POST, OPTIONS, etc.
+    allow_headers=["*"],
+)
 
 # Monta a pasta de imagens na rota /imgs para servir arquivos estáticos
 app.mount("/imgs", StaticFiles(directory=PASTA_IMAGENS), name="imgs")
@@ -38,4 +53,6 @@ def listar_figurinhas():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Pega a porta configurada pelo servidor de hospedagem ou usa 8000 como padrão
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
