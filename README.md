@@ -16,7 +16,7 @@ PROJETO: Álbum de Figurinhas - Arquitetura Web com IA
 
 
 -----------------------------------------------------------
-BACKEND:
+💻 BACKEND:
 - main.py (Servidor)
 - mainfast.py (API)
 - main2.py (Backup)
